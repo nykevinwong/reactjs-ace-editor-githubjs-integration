@@ -7,7 +7,38 @@ import 'brace/theme/monokai';
 
 import GitHub from 'github-api';
 import testUser from './settings/user.json';
+import TreeExample from "./components/TreeExample"
 
+const defaultFileTree = {
+  name: 'root',
+  toggled: true,
+  children: [
+      {
+          name: 'parent',
+          children: [
+              { name: 'child1' },
+              { name: 'child2' }
+          ]
+      },
+      {
+          name: 'loading parent',
+          loading: true,
+          children: []
+      },
+      {
+          name: 'parent',
+          children: [
+              {
+                  name: 'nested parent',
+                  children: [
+                      { name: 'nested child 1' },
+                      { name: 'nested child 2' }
+                  ]
+              }
+          ]
+      }
+  ]
+};
 
 class App extends Component {
 
@@ -17,7 +48,8 @@ class App extends Component {
     this.onGitHubLogin = this.onGitHubLogin.bind(this);
     this.state = {
      logined: false,
-     code: null
+     code: null,
+     data: defaultFileTree    
     };
 
     this.gh = null;
@@ -26,25 +58,64 @@ class App extends Component {
     console.log(window.location.search);
     if(window.location.search.indexOf("code")!==-1)
     {
-      this.state = {
+      this.state ={
       logined: true,
-      code: window.location.search.substring(1).split("=")[1]
+      code: window.location.search.substring(1).split("=")[1],
+      data: defaultFileTree   
       };
 //token: this.state.code
       this.gh = new GitHub({
         username:testUser.USERNAME,
         password:testUser.PASSWORD
       });
-
-      var remoteRepo = this.gh.getRepo(testUser.REPOUSER, testUser.REPO);
-      alert("Repo:" + JSON.stringify(remoteRepo));
-
-      remoteRepo.getContents('master', '', false, function(err, contents) {
-        alert("Contents:"+ JSON.stringify(contents));
-        console.log(contents);
-      });
-
+      this.onGitHubLogIn(testUser);
     }
+  }
+
+  createFileTree(contents)
+  {
+    var rootChildren = contents.map(
+    function(item)
+    {
+      if(item.size==0)
+      return {
+        name: item.name,
+        size: item.size,       
+        children: []
+      };
+
+      return {
+        name: item.name,
+        size: item.size
+      };
+    }).sort(
+      function(a,b)
+    {
+      return a.size > b.size;
+    });
+
+    console.log(rootChildren);
+
+    this.setState({
+      data : {
+        name: 'root',
+        toggled: true,
+        children: rootChildren
+      }
+    });
+  }
+
+  onGitHubLogIn(user)
+  {
+    var remoteRepo = this.gh.getRepo(user.REPOUSER, user.REPO);
+    alert("Repo:" + JSON.stringify(remoteRepo));
+    var self = this;
+
+    remoteRepo.getContents('master', '', false, function(err, contents) {
+      alert("Contents:"+ JSON.stringify(contents));
+      console.log(contents);
+      self.createFileTree(contents);
+    });
   }
 
   onChange(newValue) {
@@ -84,6 +155,11 @@ class App extends Component {
           <h2>Welcome to React</h2>
         </div>
         { githubLogInLabel }
+       <div>
+        <div style={{float: "left", width: 30 + "%" }} >
+        <TreeExample filetree={this.state.data} />
+        </div>
+        <div style={{float: "left", width: 70 + "%" }} >
         <AceEditor
         mode="haxe"
         theme="monokai"
@@ -91,9 +167,8 @@ class App extends Component {
         name="UNIQUE_ID_OF_DIV"
         editorProps={{$blockScrolling: true}}
        />
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
+       </div>
+       </div>
       </div>
     );
   }
