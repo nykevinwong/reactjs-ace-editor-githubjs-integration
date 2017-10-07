@@ -46,10 +46,14 @@ class App extends Component {
     super(props);
     this.onChange = this.onChange.bind(this);
     this.onGitHubLogin = this.onGitHubLogin.bind(this);
+    this.createFileTree = this.createFileTree.bind(this);
+    this.onSelectedFileNode = this.onSelectedFileNode.bind(this);
+    this.remoteRepo = null;
     this.state = {
      logined: false,
      code: null,
-     data: defaultFileTree    
+     data: defaultFileTree,
+     text: "123"    
     };
 
     this.gh = null;
@@ -61,7 +65,8 @@ class App extends Component {
       this.state ={
       logined: true,
       code: window.location.search.substring(1).split("=")[1],
-      data: defaultFileTree   
+      data: defaultFileTree,
+      text: "123"   
       };
 //token: this.state.code
       this.gh = new GitHub({
@@ -77,7 +82,7 @@ class App extends Component {
     var rootChildren = contents.map(
     function(item)
     {
-      if(item.size==0)
+      if(item.size===0)
       return {
         name: item.name,
         size: item.size,       
@@ -100,18 +105,18 @@ class App extends Component {
       data : {
         name: 'root',
         toggled: true,
-        children: rootChildren
+        children: rootChildren,
       }
     });
   }
 
   onGitHubLogIn(user)
   {
-    var remoteRepo = this.gh.getRepo(user.REPOUSER, user.REPO);
-    alert("Repo:" + JSON.stringify(remoteRepo));
+    this.remoteRepo = this.gh.getRepo(user.REPOUSER, user.REPO);
+    alert("Repo:" + JSON.stringify(this.remoteRepo));
     var self = this;
 
-    remoteRepo.getContents('master', '', false, function(err, contents) {
+    this.remoteRepo.getContents('master', '', false, function(err, contents) {
       alert("Contents:"+ JSON.stringify(contents));
       console.log(contents);
       self.createFileTree(contents);
@@ -132,6 +137,18 @@ class App extends Component {
 
     let url ="http://github.com/login/oauth/authorize?client_id=62f241ae98604e3aecc8";
     window.location = url;
+  }
+
+  onSelectedFileNode(node) {
+    console.log("onSelectedFileNode:"+ node.name);
+
+    var self = this;
+    this.remoteRepo.getContents('master', node.name, 'raw', function(err, rawText) {
+      self.setState({
+        text: rawText
+      })   
+    });
+
   }
 
   render() {
@@ -157,13 +174,17 @@ class App extends Component {
         { githubLogInLabel }
        <div>
         <div style={{float: "left", width: 30 + "%" }} >
-        <TreeExample filetree={this.state.data} />
+        <TreeExample 
+        filetree={this.state.data} 
+        onSelectedFileNode= {this.onSelectedFileNode}
+        />
         </div>
         <div style={{float: "left", width: 70 + "%" }} >
         <AceEditor
         mode="haxe"
         theme="monokai"
         onChange={this.onChange}
+        value = { this.state.text }
         name="UNIQUE_ID_OF_DIV"
         editorProps={{$blockScrolling: true}}
        />

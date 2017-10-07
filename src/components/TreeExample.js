@@ -15,6 +15,9 @@ export default class TreeExample extends React.Component {
         node.active = true;
         if(node.children){ node.toggled = toggled; }
         this.setState({ cursor: node });
+
+        this.props.onSelectedFileNode(node);
+
     }
     render(){
         return (
