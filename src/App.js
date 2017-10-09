@@ -3,6 +3,8 @@ import logo from './logo.svg';
 import './App.css';
 import AceEditor from 'react-ace';
 import 'brace/mode/haxe';
+import 'brace/mode/json';
+import 'brace/mode/xml';
 import 'brace/theme/monokai';
 
 import GitHub from 'github-api';
@@ -10,34 +12,9 @@ import testUser from './settings/user.json';
 import TreeExample from "./components/TreeExample"
 
 const defaultFileTree = {
-  name: 'root',
+  name: '',
   toggled: true,
-  children: [
-      {
-          name: 'parent',
-          children: [
-              { name: 'child1' },
-              { name: 'child2' }
-          ]
-      },
-      {
-          name: 'loading parent',
-          loading: true,
-          children: []
-      },
-      {
-          name: 'parent',
-          children: [
-              {
-                  name: 'nested parent',
-                  children: [
-                      { name: 'nested child 1' },
-                      { name: 'nested child 2' }
-                  ]
-              }
-          ]
-      }
-  ]
+  children: []  
 };
 
 class App extends Component {
@@ -53,11 +30,11 @@ class App extends Component {
      logined: false,
      code: null,
      data: defaultFileTree,
-     text: "123"    
+     text: "123",   
+     mode: "haxe"   
     };
 
     this.gh = null;
-
     //  const parsed = queryString.parse(window.location.search);
     console.log(window.location.search);
     if(window.location.search.indexOf("code")!==-1)
@@ -66,7 +43,8 @@ class App extends Component {
       logined: true,
       code: window.location.search.substring(1).split("=")[1],
       data: defaultFileTree,
-      text: "123"   
+      text: "123",
+      mode: "haxe"   
       };
 //token: this.state.code
       this.gh = new GitHub({
@@ -75,6 +53,13 @@ class App extends Component {
       });
       this.onGitHubLogIn(testUser);
     }
+    
+  }
+
+  componentDidUpdate()
+  {
+
+
   }
 
   createFileTree(contents)
@@ -82,16 +67,11 @@ class App extends Component {
     var rootChildren = contents.map(
     function(item)
     {
-      if(item.size===0)
       return {
         name: item.name,
-        size: item.size,       
-        children: []
-      };
-
-      return {
-        name: item.name,
-        size: item.size
+        size: item.size,  
+        sha: item.sha,     
+        children: (item.size===0) ? [] : undefined
       };
     }).sort(
       function(a,b)
@@ -103,7 +83,7 @@ class App extends Component {
 
     this.setState({
       data : {
-        name: 'root',
+        name: '',
         toggled: true,
         children: rootChildren,
       }
@@ -113,11 +93,10 @@ class App extends Component {
   onGitHubLogIn(user)
   {
     this.remoteRepo = this.gh.getRepo(user.REPOUSER, user.REPO);
-    alert("Repo:" + JSON.stringify(this.remoteRepo));
+    console.log("getRepo:" + JSON.stringify(this.remoteRepo));
     var self = this;
 
     this.remoteRepo.getContents('master', '', false, function(err, contents) {
-      alert("Contents:"+ JSON.stringify(contents));
       console.log(contents);
       self.createFileTree(contents);
     });
@@ -139,11 +118,55 @@ class App extends Component {
     window.location = url;
   }
 
+  setNewMode(node)
+  {
+    let newMode = "haxe";
+    
+    if(node.name.indexOf(".json")!==-1)
+    {
+      newMode ="json";
+    }
+    else if(node.name.indexOf(".xml")!==-1)
+    {
+      newMode ="xml";
+    }
+    else if(node.name.indexOf(".hxproj")!==-1)
+    {
+      newMode ="xml";
+    }
+    
+    this.setState({ mode: newMode });
+
+  }
+  
   onSelectedFileNode(node) {
     console.log("onSelectedFileNode:"+ node.name);
 
+    if(this.state.logined===false)
+    {
+      console.log("Github login is NOT authenticated");
+      return;
+    }
+
+    if(node.size===0) // ignore for now if it is a folder.
+    {
+      this.setState({
+        text: ''
+      })   
+      return;
+    }
+   
+    this.setNewMode(node);
+
     var self = this;
     this.remoteRepo.getContents('master', node.name, 'raw', function(err, rawText) {
+      console.log("recieved raw:" + JSON.stringify(rawText));
+      
+      if(node.name.indexOf(".json")!==-1)
+      {
+        rawText = JSON.stringify(rawText);
+      }
+
       self.setState({
         text: rawText
       })   
@@ -181,12 +204,14 @@ class App extends Component {
         </div>
         <div style={{float: "left", width: 70 + "%" }} >
         <AceEditor
-        mode="haxe"
+        width = "100%"
+        mode= {this.state.mode }
         theme="monokai"
         onChange={this.onChange}
         value = { this.state.text }
         name="UNIQUE_ID_OF_DIV"
         editorProps={{$blockScrolling: true}}
+        wrapEnabled = {true}
        />
        </div>
        </div>
