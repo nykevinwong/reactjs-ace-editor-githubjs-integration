@@ -1,6 +1,7 @@
 {
   "name": "deva-ui",
   "version": "0.1.0",
+  "homepage": "https://nykevinwong.github.io/reactjs-ace-editor-githubjs-integration",
   "private": true,
   "dependencies": {
     "github-api": "^3.0.0",
