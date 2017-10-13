@@ -5,6 +5,7 @@ import AceEditor from 'react-ace';
 import 'brace/mode/haxe';
 import 'brace/mode/json';
 import 'brace/mode/xml';
+import 'brace/mode/javascript';
 import 'brace/theme/monokai';
 
 import GitHub from 'github-api';
@@ -17,6 +18,26 @@ const defaultFileTree = {
   children: []  
 };
 
+const fillFolder  = function(list)
+{
+    let result = list.map(
+    function(item)
+    {
+      return {
+        name: item.name,
+        path: item.path,
+        size: item.size,  
+        sha: item.sha,     
+        children: (item.size===0) ? [] : undefined
+      };
+    }).sort(
+      function(a,b)
+    {
+      return a.size > b.size;
+    });
+
+    return result;
+}
 class App extends Component {
 
   constructor(props) {
@@ -36,6 +57,12 @@ class App extends Component {
 
     this.gh = null;
     //  const parsed = queryString.parse(window.location.search);
+
+  }
+
+  componentDidMount()
+  {
+
     console.log(window.location.search);
     if(window.location.search.indexOf("code")!==-1)
     {
@@ -53,33 +80,24 @@ class App extends Component {
       });
       this.onGitHubLogIn(testUser);
     }
-    
-  }
-
-  componentDidUpdate()
-  {
-
-
   }
 
   createFileTree(contents)
   {
-    var rootChildren = contents.map(
-    function(item)
-    {
-      return {
-        name: item.name,
-        size: item.size,  
-        sha: item.sha,     
-        children: (item.size===0) ? [] : undefined
-      };
-    }).sort(
-      function(a,b)
-    {
-      return a.size > b.size;
-    });
+    var rootChildren = fillFolder(contents);
+    var self = this;
+    rootChildren.map(function(item){
 
-    console.log(rootChildren);
+      if(item.size===0)
+      {
+        self.remoteRepo.getContents('master', item.name, false, function(err, contents) {
+          console.log(item.name + " folder:");
+          console.log(contents);
+          item.children = fillFolder(contents);
+        });
+      }
+
+    });
 
     this.setState({
       data : {
@@ -134,7 +152,15 @@ class App extends Component {
     {
       newMode ="xml";
     }
-    
+    else if(node.name.indexOf(".js")!==-1)
+    {
+        newMode ="javascript";
+    }
+    else if(node.name.indexOf(".hx")!==-1)
+    {
+          newMode ="haxe";
+    }
+          
     this.setState({ mode: newMode });
 
   }
@@ -148,7 +174,7 @@ class App extends Component {
       return;
     }
 
-    if(node.size===0) // ignore for now if it is a folder.
+    if(node.size===0 || node.name.indexOf(".png")!==-1) // ignore for now if it is a folder.
     {
       this.setState({
         text: ''
@@ -159,7 +185,7 @@ class App extends Component {
     this.setNewMode(node);
 
     var self = this;
-    this.remoteRepo.getContents('master', node.name, 'raw', function(err, rawText) {
+    this.remoteRepo.getContents('master', node.path, 'raw', function(err, rawText) {
       console.log("recieved raw:" + JSON.stringify(rawText));
       
       if(node.name.indexOf(".json")!==-1)
@@ -192,7 +218,9 @@ class App extends Component {
       <div className="App">
         <div className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
-          <h2>Welcome to React</h2>
+          <h2>Deva Web IDE</h2>
+          <h4>Environment: { process.env.NODE_ENV }</h4>
+          <br/>
         </div>
         { githubLogInLabel }
        <div>
