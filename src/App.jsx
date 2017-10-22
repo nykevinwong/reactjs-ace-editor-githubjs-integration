@@ -1,37 +1,33 @@
-import React, { Component } from "react";
-import logo from "./logo.svg";
-import "./App.css";
-import AceEditor from "react-ace";
-import "brace/mode/haxe";
-import "brace/mode/json";
-import "brace/mode/xml";
-import "brace/mode/javascript";
-import "brace/theme/monokai";
+import React, { Component } from 'react';
+import logo from './logo.svg';
+import './App.css';
+import AceEditor from 'react-ace';
+import 'brace/mode/haxe';
+import 'brace/mode/json';
+import 'brace/mode/xml';
+import 'brace/mode/javascript';
+import 'brace/theme/monokai';
 
-import GitHub from "github-api";
-import testUser from "./settings/user.json";
-import TreeExample from "./components/TreeExample";
+import GitHub from 'github-api';
+import testUser from './settings/user.json';
+import TreeExample from './components/TreeExample';
 
 const defaultFileTree = {
-  name: "",
+  name: '',
   toggled: true,
-  children: []
+  children: [],
 };
 
 const fillFolder = function(list) {
-  let result = list
-    .map(function(item) {
-      return {
-        name: item.name,
-        path: item.path,
-        size: item.size,
-        sha: item.sha,
-        children: item.size === 0 ? [] : undefined
-      };
-    })
-    .sort(function(a, b) {
-      return a.size > b.size;
-    });
+  const result = list
+    .map(item => ({
+      name: item.name,
+      path: item.path,
+      size: item.size,
+      sha: item.sha,
+      children: item.size === 0 ? [] : undefined,
+    }))
+    .sort((a, b) => a.size > b.size);
 
   return result;
 };
@@ -47,8 +43,8 @@ class App extends Component {
       logined: false,
       code: null,
       data: defaultFileTree,
-      text: "123",
-      mode: "haxe"
+      text: '123',
+      mode: 'haxe',
     };
 
     this.gh = null;
@@ -57,125 +53,124 @@ class App extends Component {
 
   componentDidMount() {
     console.log(window.location.search);
-    if (window.location.search.indexOf("code") !== -1) {
+    if (window.location.search.indexOf('code') !== -1) {
       this.state = {
         logined: true,
-        code: window.location.search.substring(1).split("=")[1],
+        code: window.location.search.substring(1).split('=')[1],
         data: defaultFileTree,
-        text: "123",
-        mode: "haxe"
+        text: '123',
+        mode: 'haxe',
       };
-      //token: this.state.code
+      // token: this.state.code
       this.gh = new GitHub({
         username: testUser.USERNAME,
-        password: testUser.PASSWORD
+        password: testUser.PASSWORD,
       });
       this.onGitHubLogIn(testUser);
     }
   }
 
   createFileTree(contents) {
-    var rootChildren = fillFolder(contents);
-    var self = this;
-    rootChildren.map(function(item) {
+    const rootChildren = fillFolder(contents);
+    const self = this;
+    rootChildren.map(item => {
       if (item.size === 0) {
-        self.remoteRepo.getContents("master", item.name, false, function(
-          err,
-          contents
-        ) {
-          console.log(item.name + " folder:");
-          console.log(contents);
-          item.children = fillFolder(contents);
-        });
+        self.remoteRepo.getContents(
+          'master',
+          item.name,
+          false,
+          (err, contents) => {
+            console.log(`${item.name} folder:`);
+            console.log(contents);
+            item.children = fillFolder(contents);
+          },
+        );
       }
     });
 
     this.setState({
       data: {
-        name: "",
+        name: '',
         toggled: true,
-        children: rootChildren
-      }
+        children: rootChildren,
+      },
     });
   }
 
   onGitHubLogIn(user) {
     this.remoteRepo = this.gh.getRepo(user.REPOUSER, user.REPO);
-    console.log("getRepo:" + JSON.stringify(this.remoteRepo));
-    var self = this;
+    console.log(`getRepo:${JSON.stringify(this.remoteRepo)}`);
+    const self = this;
 
-    this.remoteRepo.getContents("master", "", false, function(err, contents) {
+    this.remoteRepo.getContents('master', '', false, (err, contents) => {
       console.log(contents);
       self.createFileTree(contents);
     });
   }
 
   onChange(newValue) {
-    console.log("change", newValue);
+    console.log('change', newValue);
   }
 
   onGitHubLogin() {
     //    e.preventDefault();
-    console.log("onGitHubLogin");
+    console.log('onGitHubLogin');
 
     // TODO: add below parameter
     // state - string  - An unguessable random string. It is used to protect against cross-site request forgery attacks.
     // https://developer.github.com/apps/building-integrations/setting-up-and-registering-oauth-apps/about-authorization-options-for-oauth-apps/
 
-    let url =
-      "http://github.com/login/oauth/authorize?client_id=62f241ae98604e3aecc8";
+    const url =
+      'http://github.com/login/oauth/authorize?client_id=62f241ae98604e3aecc8';
     window.location = url;
   }
 
   setNewMode(node) {
-    let newMode = "haxe";
+    let newMode = 'haxe';
 
-    if (node.name.indexOf(".json") !== -1) {
-      newMode = "json";
-    } else if (node.name.indexOf(".xml") !== -1) {
-      newMode = "xml";
-    } else if (node.name.indexOf(".hxproj") !== -1) {
-      newMode = "xml";
-    } else if (node.name.indexOf(".js") !== -1) {
-      newMode = "javascript";
-    } else if (node.name.indexOf(".hx") !== -1) {
-      newMode = "haxe";
+    if (node.name.indexOf('.json') !== -1) {
+      newMode = 'json';
+    } else if (node.name.indexOf('.xml') !== -1) {
+      newMode = 'xml';
+    } else if (node.name.indexOf('.hxproj') !== -1) {
+      newMode = 'xml';
+    } else if (node.name.indexOf('.js') !== -1) {
+      newMode = 'javascript';
+    } else if (node.name.indexOf('.hx') !== -1) {
+      newMode = 'haxe';
     }
 
     this.setState({ mode: newMode });
   }
 
   onSelectedFileNode(node) {
-    console.log("onSelectedFileNode:" + node.name);
+    console.log(`onSelectedFileNode:${node.name}`);
 
     if (this.state.logined === false) {
-      console.log("Github login is NOT authenticated");
+      console.log('Github login is NOT authenticated');
       return;
     }
 
-    if (node.size === 0 || node.name.indexOf(".png") !== -1) {
+    if (node.size === 0 || node.name.indexOf('.png') !== -1) {
       // ignore for now if it is a folder.
       this.setState({
-        text: ""
+        text: '',
       });
       return;
     }
 
     this.setNewMode(node);
 
-    var self = this;
-    this.remoteRepo.getContents("master", node.path, "raw", function(
-      err,
-      rawText
-    ) {
-      console.log("recieved raw:" + JSON.stringify(rawText));
+    const self = this;
+    this.remoteRepo.getContents('master', node.path, 'raw', (err, rawText) => {
+      console.log(`recieved raw:${JSON.stringify(rawText)}`);
 
-      if (node.name.indexOf(".json") !== -1) {
+      if (node.name.indexOf('.json') !== -1) {
         rawText = JSON.stringify(rawText);
       }
 
       self.setState({
-        text: rawText
+        text: rawText,
       });
     });
   }
@@ -203,13 +198,13 @@ class App extends Component {
         </div>
         {githubLogInLabel}
         <div>
-          <div style={{ float: "left", width: 30 + "%" }}>
+          <div style={{ float: 'left', width: `${30}%` }}>
             <TreeExample
               filetree={this.state.data}
               onSelectedFileNode={this.onSelectedFileNode}
             />
           </div>
-          <div style={{ float: "left", width: 70 + "%" }}>
+          <div style={{ float: 'left', width: `${70}%` }}>
             <AceEditor
               width="100%"
               mode={this.state.mode}
@@ -218,7 +213,7 @@ class App extends Component {
               value={this.state.text}
               name="UNIQUE_ID_OF_DIV"
               editorProps={{ $blockScrolling: true }}
-              wrapEnabled={true}
+              wrapEnabled
             />
           </div>
         </div>
