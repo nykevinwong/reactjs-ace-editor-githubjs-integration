@@ -1,0 +1,33 @@
+{
+    "extends": [
+        "airbnb",
+        "prettier",
+        "prettier/react"
+    ],
+    "parser": "babel-eslint",
+    "plugins": ["compat", "prettier" ],
+    "env": {
+    "browser": true,
+    "jest": true 
+     },
+     "rules": {
+        "react/no-danger": "off",
+        "import/no-extraneous-dependencies": "off",
+        "no-unexpected-multiline": "error",
+        "compat/compat": "error",
+        "prettier/prettier": ["error", {"singleQuote": true, "trailingComma": "all"}],
+        "comma-dangle": ["error", "always-multiline"],
+        "no-underscore-dangle": "off",
+        "no-use-before-define": "off",
+        "import/no-named-as-default": "off",
+        "no-param-reassign": ["error", { "props": false}],
+        "react/forbid-prop-types": ["error", {"forbid": ["array", "object"]}],
+        "class-methods-use-this": "off",
+        "jsx-ally/label-has-for": [ 2,{
+            "components": [ "Label"],
+            "required":{
+            "every": [ "nesting", "id"]},
+            "allowChildren": true
+            }]
+     }
+}

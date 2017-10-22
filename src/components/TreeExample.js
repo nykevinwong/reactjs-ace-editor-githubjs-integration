@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import {Treebeard} from 'react-treebeard';
 
 
-
 export default class TreeExample extends React.Component {
     constructor(props){
         super(props);
