@@ -1,8 +1,8 @@
 import React from 'react';
 import RaisedButton  from 'material-ui/RaisedButton';
 
-const LoginButton = (props) => (
-<RaisedButton  {...this.props} label="Login"  />
-);
+const LoginButton = (props) => {
+return (<RaisedButton  {...props} label="Login" />);
+};
 
 export default LoginButton;

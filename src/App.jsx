@@ -7,17 +7,18 @@ import AppBar from 'material-ui/AppBar';
 import MenuItem from 'material-ui/MenuItem';
 import SystemSettingsButton from './features/component/Buttons/SystemSettingsButton';
 import LoginButton from './features/component/Buttons/LoginButton';
-
+import GithubService from './services/logins/GithubService';
 
 class App extends React.Component {
     
       constructor(props) {
         super(props);
-        this.state = {open: false, logged : false};
+        this.state = {logged : GithubService.isLogined()};
       }
-    
-      handleToggle = (event) => this.setState({open: !this.state.open});
-      handleClose = () => this.setState({open: false});
+
+      handleLogin  = (event) => {
+        GithubService.login(); 
+      }
 
       render() {
         return (
@@ -25,7 +26,7 @@ class App extends React.Component {
             <div>
           <AppBar title="Home"
           onLeftIconButtonTouchTap={ this.handleToggle }
-          iconElementRight = { this.logged ? <SystemSettingsButton /> : <LoginButton /> } />
+          iconElementRight = { this.state.logged ? <SystemSettingsButton /> : <LoginButton onClick={this.handleLogin} /> } />
           <Drawer
           docked={false}
           width={200}
