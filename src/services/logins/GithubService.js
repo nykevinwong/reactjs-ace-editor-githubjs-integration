@@ -7,7 +7,7 @@ class GithubService
 static login = () => {
     const clientID = OauthAppSetting.CLIENTID;
     const url =
-      'http://github.com/login/oauth/authorize?client_id=' + clientID;
+      'http://github.com/login/oauth/authorize?scope=user:email&client_id=' + clientID;
     window.location = url;
 }
 
