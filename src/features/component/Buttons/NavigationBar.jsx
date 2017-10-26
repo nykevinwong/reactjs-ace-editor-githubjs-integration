@@ -4,7 +4,7 @@ import AppBar from 'material-ui/AppBar';
 import MenuItem from 'material-ui/MenuItem';
 import SystemSettingsButton from './SystemSettingsButton';
 import LoginButton from './LoginButton';
-import GithubService from '../../../services/logins/GithubService';
+import GithubService from '../../../services/GithubService';
 
 class NavigationBar extends React.Component {
     
@@ -20,6 +20,11 @@ class NavigationBar extends React.Component {
         GithubService.login(); 
       }
 
+      handleGetRepors()
+      {
+        GithubService.getRepos();
+      }
+
       render() {
         return (
           <div>
@@ -32,7 +37,7 @@ class NavigationBar extends React.Component {
           open={this.state.open}
           onRequestChange={(open) => this.setState({open})}
           >
-          <MenuItem onClick={this.handleClose}>Menu Item</MenuItem>
+          <MenuItem onClick={this.handleGetRepors}>Get Repo Test</MenuItem>
           <MenuItem onClick={this.handleClose}>Menu Item 2</MenuItem>
           </Drawer>
           </div>);

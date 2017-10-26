@@ -13,9 +13,8 @@ const SystemSettingsButton = (props) => (
     targetOrigin={{horizontal: 'right', vertical: 'top'}}
     anchorOrigin={{horizontal: 'right', vertical: 'top'}}
   >
-    <MenuItem primaryText="Refresh" />
+    <MenuItem primaryText="Create a Project" />
     <MenuItem primaryText="Help" />
-    <MenuItem primaryText="Sign out" />
   </IconMenu>
 );
 
