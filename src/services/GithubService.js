@@ -9,53 +9,63 @@ let github = new GitHub({
 
 let user = null;
 let repoList = null;
-let userProfie = null;
+let userProfile = null;
+
 
 class GithubService
 {
+
+
 /*
 static getRepoBranches = (callBack) => {
 
   remoteRepo = github.getRepo('github-tools', 'github');
 
 }
+*/
 
-static getUserProfile(cb) => {
-  if(userProfie!==null)
-    {
-      console.log("get cached Repolist");
-      console.log(userProfie);
-      if(callback!=null)
-        callback(userProfie);
-      return;
-    }
 
-  GithubService.getUser().getProfile(cb);
-}*/
+static getUserProfile = async () => {
+  console.log("getUserProfile");
+  if(userProfile==null)
+  {
+  userProfile = await  GithubService.getUser().getProfile();
+  userProfile = userProfile.data;
+  }
+  console.log(userProfile);
+  
+  return userProfile;
+}
 
-static getRepos = (callback) => {
-  if(repoList!==null)
-    {
-      console.log("get cached Repolist");
-      console.log(repoList);
-      if(callback!=null)
-        callback(repoList);
-      return;
-    }
-    
+static getRepoNames = async () => {
+  let repoNames = await GithubService.getRepos();
+  repoNames = repoNames.map( item => item.name);
+  return repoNames;
+}
+
+static getRepos = async () => {
+  console.log("getRepos");
   const filterOpts = {
          type: 'owner',
          sort: 'updated'
       };
 
-      GithubService.getUser().listRepos(filterOpts, 
-        (err, result) => {
-          console.log("get Repolist");
-          console.log(result);
-          repoList = result;
-          if(callback!=null)
-            callback(repoList);
-      } );
+  try
+  {
+    if(repoList==null)
+      {
+        repoList = await GithubService.getUser().listRepos(filterOpts);
+      repoList = repoList.data;
+      }
+  }
+  catch(e)
+  {
+    console.log("failed to get repots.");
+  }
+
+  console.log(repoList);
+
+  return repoList;
 }
 
 static getUser = () => {

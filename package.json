@@ -5,13 +5,15 @@
   "private": true,
   "dependencies": {
     "github-api": "^3.0.0",
+    "immutable": "^3.8.2",
     "react": "^15.6.1",
     "react-ace": "^5.2.0",
     "react-dom": "^15.6.1",
     "react-redux": "^5.0.6",
     "react-router-dom": "^4.2.2",
     "react-treebeard": "^2.0.3",
-    "redux": "^3.7.2"
+    "redux": "^3.7.2",
+    "seamless-immutable": "^7.1.2"
   },
   "scripts": {
     "start": "react-scripts start",
