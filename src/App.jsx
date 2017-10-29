@@ -2,13 +2,13 @@ import React from "react";
 import lightBaseTheme from "material-ui/styles/baseThemes/lightBaseTheme";
 import MuiThemeProvider from "material-ui/styles/MuiThemeProvider";
 import getMuiTheme from "material-ui/styles/getMuiTheme";
-import NavigationBar from "./features/component/Buttons/NavigationBar";
 
 
 
 import { Switch, Route, HashRouter   } from 'react-router-dom';
 import EditorPage  from './features/Pages/EditorPage';
 import CreatePage  from './features/Pages/CreatePage';
+import NavigationBar from "./features/component/Buttons/NavigationBar";
 
 class App extends React.Component {
 
@@ -26,11 +26,9 @@ class App extends React.Component {
       <HashRouter>
       <MuiThemeProvider muiTheme={getMuiTheme(lightBaseTheme)}>
       <div>
-      <NavigationBar />
-      <Switch>
-      <Route exact path="/editor" component={EditorPage} />
-      <Route exact path="/create" component={CreatePage} />
-      </Switch>
+      <Route path="/" component={NavigationBar} />
+      <Route path="/:name/create" component={CreatePage} />
+      <Route path="/:name/project/editor/:projname" component={EditorPage} />
       </div>
       </MuiThemeProvider>
       </HashRouter>

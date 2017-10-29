@@ -4,8 +4,8 @@ import FontIcon from 'material-ui/FontIcon';
 import IconMenu from 'material-ui/IconMenu';
 import MenuItem from 'material-ui/MenuItem';
 
-const SystemSettingsButton = (props) => (
-  <IconMenu
+const SystemSettingsButton = (props) => {
+  return (<IconMenu
     {...props}
     iconButtonElement={
       <IconButton><FontIcon className="material-icons">settings</FontIcon></IconButton>
@@ -15,7 +15,8 @@ const SystemSettingsButton = (props) => (
   >
     <MenuItem primaryText="Create a Project" />
     <MenuItem primaryText="Help" />
-  </IconMenu>
-);
+  </IconMenu>);
+};
+
 
 export default SystemSettingsButton;

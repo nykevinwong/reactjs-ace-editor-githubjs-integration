@@ -1,6 +1,7 @@
 import GitHub from 'github-api';
 import OauthAppSetting from '../settings/oauthapp.json';
 import testUser from '../settings/user.json';
+import queryString from 'query-string';
 
 let github = new GitHub({
         username: testUser.USERNAME,
@@ -80,7 +81,12 @@ static login = () => {
     window.location = url;
 }
 
-static isLogined = () => window.location.search.indexOf('code') !== -1;
+static getAccessTokenFromURL= () => {
+  const parsed = queryString.parse(window.location.search);
+  return parsed.code;  
+}
+
+static isLogined = () => window.location.search.indexOf('code') !== -1 && GithubService.getAccessTokenFromURL() != undefined;
 
 }
 

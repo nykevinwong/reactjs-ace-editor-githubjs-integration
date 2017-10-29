@@ -6,8 +6,11 @@ import 'brace/mode/xml';
 import 'brace/mode/javascript';
 import 'brace/theme/monokai';
 
-const EditorPage = () => {
-return (<AceEditor
+const EditorPage = ({match}) => {
+return (
+<div>
+  <h1>{match.params.projname}</h1>
+  <AceEditor
             width="100%"
             mode={"haxe"}
             theme="monokai"
@@ -16,7 +19,8 @@ return (<AceEditor
             name="UNIQUE_ID_OF_DIV"
             editorProps={{ $blockScrolling: true }}
             wrapEnabled
-          />);
+          />
+          </div>);
 };
 
 

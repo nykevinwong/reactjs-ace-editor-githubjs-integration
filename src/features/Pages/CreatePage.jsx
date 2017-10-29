@@ -10,6 +10,7 @@ class CreatePage extends React.Component {
         super(props);
         this.state = { dataSource: [] };
         this.selectedRepoName = null;
+
     }
 
     async componentDidMount()
@@ -17,14 +18,21 @@ class CreatePage extends React.Component {
         const repoNames = await GithubService.getRepoNames();
         const userProfile = await GithubService.getUserProfile(); 
   
-        this.setState( { dataSource: repoNames, email: userProfile.email, gitIconUrl: userProfile.avatar_url  });
+        this.setState( { dataSource: repoNames, email: userProfile.email, gitIconUrl: userProfile.avatar_url, defaultBranch: null });
     }
 
-    onClick = (event) => {
-        if(this.selectedRepoName==null)
-            {
+    onClick = async (event) => {
+        if(this.selectedRepoName===null)
+        {
                 alert("Please input a repo name");
-            }
+                this.setState({defaultBranch: null});
+        }
+        else
+        {
+            const repos = await GithubService.getRepos();
+            const selectedItem = repos.filter(item=> item.name == this.selectedRepoName);
+            this.setState({defaultBranch: selectedItem.default_branch});
+        }
     }
 
     onNewRequest = (chosenRequest, index) => {
@@ -44,6 +52,8 @@ class CreatePage extends React.Component {
           onNewRequest={this.onNewRequest}
         />
         <RaisedButton label="Create" primary={true} onClick={this.onClick} />
+        <br/>
+        { this.state.defaultBranch!=null ? this.state.default_branch : null }
       </div>
     );
   }

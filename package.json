@@ -6,6 +6,7 @@
   "dependencies": {
     "github-api": "^3.0.0",
     "immutable": "^3.8.2",
+    "query-string": "^5.0.1",
     "react": "^15.6.1",
     "react-ace": "^5.2.0",
     "react-dom": "^15.6.1",
